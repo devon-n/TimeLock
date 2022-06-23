@@ -6,7 +6,6 @@ contract TimeLock {
 
     address private owner;
 
-    event CL(string _msg, uint _uint);
     event Deposit(address indexed _owner, uint _fortnights, uint _amount);
     event Withdraw(address indexed _owner, uint _amount);
 
@@ -34,6 +33,7 @@ contract TimeLock {
         require(msg.value > 0, 'Deposit needs to be greater than 0');
         require(timelocks[_owner].startDate == 0, 'Owner already has a timelock');
 
+        // Set the timelock
         timelocks[_owner].startDate = block.timestamp;
         timelocks[_owner].endDate = block.timestamp + _fortnights * 2 weeks;
         timelocks[_owner].fortnightAmount = msg.value / _fortnights;
@@ -79,17 +79,12 @@ contract TimeLock {
 
     function getNextPayDay(address _owner) public view returns (uint) {
 
-        uint _daysPassed = (block.timestamp - timelocks[_owner].fortnightsPassed * 2 weeks - timelocks[_owner].startDate) / 1 days * 10;
-        uint _fortnightsPassed = _daysPassed / 14;
-        // if (_fortnightsPassed > timelocks[owner].fortnightsPassed) {
-        //     return 0;
-        // }
-        // TIMES BY TEN AND IF THE LAST NUMBER IS 0 THEN THERE IS LEFT OVER
-
-        uint _weeksPassed = (block.timestamp - timelocks[_owner].startDate) / 2 weeks;
-        return _fortnightsPassed;
+        uint _daysPassed = (block.timestamp - timelocks[_owner].fortnightsPassed * 2 weeks - timelocks[_owner].startDate) / 1 days;
+        uint _remainder = _daysPassed % 14;
+        
+        if (_remainder > 0) {
+            return 14 - _remainder;
+        }
+        return _remainder;
     }
-    // How to find out when the next payment will be? 
-    // Find If fortnights passed > owners fortnights passed
-    // How long for next fortnight
 }

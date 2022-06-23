@@ -26,11 +26,10 @@ describe("TimeLock", function () {
 
     // Increase Time
     let start = await latest()
-    let end = start.add(duration.weeks(19))
+    let end = start.add(duration.days(71))
     await increaseTo(end)
 
-    // Withdraw
-
+    // Get next pay day
     const nextPay = await timelock.getNextPayDay(accounts[1].address)
     console.log(nextPay)
   })
