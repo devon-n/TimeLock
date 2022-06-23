@@ -39,6 +39,8 @@ contract TimeLock {
         timelocks[_owner].fortnightAmount = msg.value / _fortnights;
         timelocks[_owner].lockedAmount = msg.value;
         timelocks[_owner].owner = payable(_owner);
+
+        emit Deposit(_owner, _fortnights, msg.value);
     }
 
     function withdraw() public {
@@ -60,6 +62,7 @@ contract TimeLock {
 
         // Send
         _timelock.owner.transfer(_amountToSend);
+        emit Withdraw(msg.sender, _amountToSend);
     }
 
     // Getters
@@ -76,15 +79,15 @@ contract TimeLock {
 
     function getNextPayDay(address _owner) public view returns (uint) {
 
-        uint _fortnightsPassed = (block.timestamp - timelocks[_owner].fortnightsPassed * 2 weeks - timelocks[_owner].startDate) / 2 weeks;
-        if (_fortnightsPassed > timelocks[owner].fortnightsPassed) {
-            return 0;
-        }
+        uint _daysPassed = (block.timestamp - timelocks[_owner].fortnightsPassed * 2 weeks - timelocks[_owner].startDate) / 1 days * 10;
+        uint _fortnightsPassed = _daysPassed / 14;
+        // if (_fortnightsPassed > timelocks[owner].fortnightsPassed) {
+        //     return 0;
+        // }
+        // TIMES BY TEN AND IF THE LAST NUMBER IS 0 THEN THERE IS LEFT OVER
 
-        // TODO: FIND OUT WHAT THIS RETURNS TO RETURN THE NEXT PAY DAY
-        // days must be < 14
         uint _weeksPassed = (block.timestamp - timelocks[_owner].startDate) / 2 weeks;
-        return _weeksPassed;
+        return _fortnightsPassed;
     }
     // How to find out when the next payment will be? 
     // Find If fortnights passed > owners fortnights passed
